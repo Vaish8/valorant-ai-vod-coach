@@ -54,3 +54,6 @@ checkpoints/
 
 # Docker
 docker-data/
+# Backend local files
+backend/venv/
+backend/.env
