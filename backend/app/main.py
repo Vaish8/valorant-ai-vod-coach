@@ -1,20 +1,31 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes.health import router as health_router
 from app.api.routes.database import router as database_router
+from app.api.routes.health import router as health_router
+from app.api.routes.matches import router as matches_router
 from app.core.config import settings
+from app.db.init_db import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
 
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.API_VERSION,
     description="Backend API for the Valorant AI VOD Coach platform.",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development only. Restrict this later in production.
+    allow_origins=["*"],  # Development only. Restrict this later in production.
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,6 +33,7 @@ app.add_middleware(
 
 app.include_router(health_router)
 app.include_router(database_router)
+app.include_router(matches_router)
 
 
 @app.get("/", tags=["Root"])

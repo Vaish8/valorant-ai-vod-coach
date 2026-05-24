@@ -94,3 +94,9 @@ Database + File Storage
 - Configured SQLAlchemy database engine and session management
 - Added environment-based database configuration
 - Added database health check endpoint at `/db/health`
+
+### Day 4
+- Added Match database model for Valorant VOD review sessions
+- Added Pydantic schemas for match creation and response validation
+- Added Match service layer for database operations
+- Added Match API endpoints: `POST /matches`, `GET /matches`, and `GET /matches/{match_id}`
