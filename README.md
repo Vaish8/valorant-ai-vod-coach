@@ -88,3 +88,9 @@ Database + File Storage
 - Added health check endpoint
 - Added environment-based configuration
 - Added automatic API documentation
+
+### Day 3
+- Added PostgreSQL and Redis services using Docker Compose
+- Configured SQLAlchemy database engine and session management
+- Added environment-based database configuration
+- Added database health check endpoint at `/db/health`
