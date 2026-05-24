@@ -40,7 +40,8 @@ The MVP will focus on a narrow but valuable version of the product.
 
 - Upload a gameplay VOD or sample match data
 - Store match metadata and round information
-- Extract basic round-level events
+- Store structured gameplay events
+- Build rule-based tactical analysis over match events
 - Generate AI-assisted coaching feedback per round
 - Categorize mistakes into tactical, positioning, utility, economy, and team coordination issues
 - Display analysis results through a simple web interface
@@ -76,27 +77,107 @@ AI Analysis Service
    |
    v
 Database + File Storage
+```
+
+## Current Backend Data Flow
+
+The backend currently supports the following structured workflow:
+
+```text
+Match Session
+   |
+   v
+Rounds
+   |
+   v
+Gameplay Events
+   |
+   v
+Future Tactical Analysis
+   |
+   v
+Future AI Coaching Feedback
+```
 
 ## Development Progress
 
 ### Day 1
+
 - Initialized project repository structure
 - Added roadmap and documentation foundation
 
 ### Day 2
+
 - Added FastAPI backend skeleton
 - Added health check endpoint
 - Added environment-based configuration
 - Added automatic API documentation
 
 ### Day 3
+
 - Added PostgreSQL and Redis services using Docker Compose
 - Configured SQLAlchemy database engine and session management
 - Added environment-based database configuration
 - Added database health check endpoint at `/db/health`
 
 ### Day 4
+
 - Added Match database model for Valorant VOD review sessions
 - Added Pydantic schemas for match creation and response validation
 - Added Match service layer for database operations
 - Added Match API endpoints: `POST /matches`, `GET /matches`, and `GET /matches/{match_id}`
+
+### Day 5
+
+- Added Round and Event database models for structured VOD analysis
+- Added Pydantic schemas for round and event validation
+- Added service layer functions for creating and retrieving rounds/events
+- Added API endpoints: `POST /matches/{match_id}/rounds`, `GET /matches/{match_id}/rounds`, `POST /rounds/{round_id}/events`, and `GET /rounds/{round_id}/events`
+- Built the structured data foundation for future rule-based tactical analysis and AI coaching feedback
+
+## Tech Stack
+
+### Backend
+
+- Python
+- FastAPI
+- SQLAlchemy
+- Pydantic
+- PostgreSQL
+- Redis
+- Docker Compose
+- Uvicorn
+
+### Planned Frontend
+
+- React or Next.js
+- Tailwind CSS
+- Dashboard UI for match, round, and event analysis
+
+### Planned AI/ML Layer
+
+- Rule-based tactical analysis
+- LLM-assisted coaching summaries
+- Video metadata extraction
+- Future OpenCV-based event extraction
+
+## Current Status
+
+The project currently has a working backend foundation with:
+
+- API health check
+- Database health check
+- PostgreSQL connection
+- Match session creation and retrieval
+- Round creation and retrieval
+- Gameplay event creation and retrieval
+
+Next planned milestone:
+
+```text
+Build the rule-based tactical analysis engine using structured match, round, and event data.
+```
+
+## Notes
+
+This project is under active development. The current focus is building a reliable backend and structured data pipeline before adding advanced video processing or AI coaching features.
