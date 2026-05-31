@@ -9,6 +9,7 @@ from app.api.routes.health import router as health_router
 from app.api.routes.matches import router as matches_router
 from app.api.routes.rounds import router as rounds_router
 from app.api.routes.statistics import router as statistics_router
+from app.api.routes.analysis import router as analysis_router
 from app.core.config import settings
 from app.db.init_db import init_db
 
@@ -40,7 +41,7 @@ app.include_router(matches_router)
 app.include_router(rounds_router)
 app.include_router(events_router)
 app.include_router(statistics_router)
-
+app.include_router(analysis_router)
 
 @app.get("/", tags=["Root"])
 def root():
