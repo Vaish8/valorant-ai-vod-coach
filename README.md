@@ -135,6 +135,37 @@ Future AI Coaching Feedback
 - Added API endpoints: `POST /matches/{match_id}/rounds`, `GET /matches/{match_id}/rounds`, `POST /rounds/{round_id}/events`, and `GET /rounds/{round_id}/events`
 - Built the structured data foundation for future rule-based tactical analysis and AI coaching feedback
 
+### Day 6
+
+- Added backend learning notes to document the system built from Day 1 to Day 5
+- Reviewed FastAPI request flow, SQLAlchemy models, Pydantic schemas, service layers, and database relationships
+- Documented common development errors and fixes, including virtual environment issues, missing route registration, database authentication, and SQLAlchemy relationship configuration
+- Created a study reference for explaining the Match → Round → Event backend workflow in interviews
+
+### Day 7
+
+- Added match statistics service to calculate round, side, spike, and event-based metrics
+- Added statistics response schema for structured API output
+- Added `GET /matches/{match_id}/statistics` endpoint
+- Calculated event counts for tactical signals such as `first_death`, `utility_unused`, and `trade_kill`
+- Created the foundation for the upcoming rule-based tactical analysis engine
+
+### Day 8
+
+- Added rule-based tactical analysis engine for structured match data
+- Added analysis response schema with issue type, severity, evidence, recommendation, confidence, and optional round reference
+- Added `POST /matches/{match_id}/analyze` endpoint
+- Implemented rules for repeated first deaths, post-plant conversion issues, utility unused in lost rounds, low trade support, and low round conversion
+- Created the first explainable analysis layer before adding LLM-based coaching
+
+### Day 9
+
+- Added database persistence for tactical analysis findings
+- Added `AnalysisFinding` SQLAlchemy model for storing issue type, severity, evidence, recommendation, confidence, source, and optional round reference
+- Updated `POST /matches/{match_id}/analyze` to generate and save findings to PostgreSQL
+- Added `GET /matches/{match_id}/analysis` endpoint for retrieving saved analysis results
+- Improved the backend workflow from temporary API-only analysis to persistent analysis results for future dashboard and LLM coaching features
+
 ## Tech Stack
 
 ### Backend

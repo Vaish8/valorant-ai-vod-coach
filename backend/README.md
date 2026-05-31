@@ -295,3 +295,144 @@ The current event input is manual/structured. This is intentional for the MVP be
 - psycopg
 - Redis
 - Docker Compose
+
+## Match Statistics API
+
+The Statistics API calculates match-level metrics from stored rounds and events. These statistics will be used by the future tactical rule engine.
+
+### Get Match Statistics
+
+```http
+GET /matches/{match_id}/statistics
+```
+
+Example response:
+
+```json
+{
+  "match_id": 1,
+  "total_rounds": 6,
+  "rounds_won": 1,
+  "rounds_lost": 4,
+  "attack_rounds": 4,
+  "defense_rounds": 1,
+  "attack_rounds_won": 0,
+  "defense_rounds_won": 1,
+  "attack_win_rate": 0,
+  "defense_win_rate": 1,
+  "overall_win_rate": 0.17,
+  "spike_plants": 1,
+  "post_plant_losses": 1,
+  "total_events": 6,
+  "event_counts_by_type": {
+    "first_death": 3,
+    "utility_unused": 2,
+    "trade_kill": 1
+  },
+  "first_death_count": 3,
+  "utility_unused_count": 2,
+  "trade_kill_count": 1
+}
+```
+
+### Statistics Currently Calculated
+
+- Total rounds
+- Rounds won and lost
+- Attack and defense round counts
+- Attack, defense, and overall win rates
+- Spike plants
+- Post-plant losses
+- Total gameplay events
+- Event counts by type
+- First death count
+- Utility unused count
+- Trade kill count
+
+## Rule-Based Analysis API
+
+The Rule-Based Analysis API converts stored rounds, events, and match statistics into explainable tactical findings. This is the first analysis layer before adding LLM-generated coaching summaries.
+
+### Analyze Match
+
+```http
+POST /matches/{match_id}/analyze
+```
+
+Example response:
+
+```json
+{
+  "match_id": 1,
+  "total_findings": 6,
+  "findings": [
+    {
+      "issue_type": "repeated_first_deaths",
+      "severity": "high",
+      "finding": "Player or team recorded 3 first-death events.",
+      "evidence": "The match contains 3 first_death events. Repeated first deaths often create early 4v5 disadvantages.",
+      "recommendation": "Avoid taking isolated early duels. Use teammate utility, request trade support, or delay first contact until the team is ready to follow up.",
+      "confidence": 0.9,
+      "round_id": null
+    }
+  ]
+}
+```
+
+### Rules Currently Implemented
+
+- Repeated first deaths
+- Post-plant conversion issues
+- Utility unused in lost rounds
+- Low trade support
+- Low round conversion
+
+### Why This Layer Exists
+
+The rule engine creates evidence-based findings before the LLM layer is added. This reduces hallucination risk because future AI coaching summaries can be grounded in structured statistics and deterministic findings.
+
+## Persisted Analysis Results API
+
+The backend stores rule-based tactical findings in PostgreSQL so that analysis results can be retrieved later by the dashboard or future LLM coaching layer.
+
+### Run and Save Match Analysis
+
+```http
+POST /matches/{match_id}/analyze
+```
+
+This endpoint generates rule-based findings and saves them to the `analysis_findings` table.
+
+### Get Saved Match Analysis
+
+```http
+GET /matches/{match_id}/analysis
+```
+
+Example response:
+
+```json
+{
+  "match_id": 1,
+  "total_findings": 6,
+  "findings": [
+    {
+      "id": 1,
+      "match_id": 1,
+      "round_id": null,
+      "issue_type": "repeated_first_deaths",
+      "severity": "high",
+      "finding": "Player or team recorded 3 first-death events.",
+      "evidence": "The match contains 3 first_death events. Repeated first deaths often create early 4v5 disadvantages.",
+      "recommendation": "Avoid taking isolated early duels. Use teammate utility, request trade support, or delay first contact until the team is ready to follow up.",
+      "confidence": 0.9,
+      "source": "rule_engine",
+      "created_at": "2026-05-31T11:51:02.378773Z"
+    }
+  ]
+}
+```
+
+### Why This Matters
+
+Persisting analysis results allows the product to support dashboards, historical review, repeated analysis runs, and future LLM-generated summaries grounded in stored evidence.
