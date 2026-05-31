@@ -4,12 +4,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.database import router as database_router
+from app.api.routes.events import router as events_router
 from app.api.routes.health import router as health_router
 from app.api.routes.matches import router as matches_router
+from app.api.routes.rounds import router as rounds_router
+from app.api.routes.statistics import router as statistics_router
 from app.core.config import settings
 from app.db.init_db import init_db
-from app.api.routes.events import router as events_router
-from app.api.routes.rounds import router as rounds_router
 
 
 @asynccontextmanager
@@ -27,7 +28,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Development only. Restrict this later in production.
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,6 +39,8 @@ app.include_router(database_router)
 app.include_router(matches_router)
 app.include_router(rounds_router)
 app.include_router(events_router)
+app.include_router(statistics_router)
+
 
 @app.get("/", tags=["Root"])
 def root():
