@@ -23,7 +23,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.API_VERSION,
-    description="Backend API for the Valorant AI VOD Coach platform.",
+    description=(
+        "Backend API for the Valorant AI VOD Coach platform. "
+        "Supports match sessions, rounds, structured gameplay events, "
+        "statistics calculation, rule-based tactical analysis, and persisted findings."
+    ),
     lifespan=lifespan,
 )
 

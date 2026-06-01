@@ -17,7 +17,7 @@ def create_event(db: Session, round_id: int, event_data: EventCreate) -> Event |
     event = Event(
         round_id=round_id,
         timestamp_seconds=event_data.timestamp_seconds,
-        event_type=event_data.event_type,
+        event_type=event_data.event_type.value,
         actor=event_data.actor,
         target=event_data.target,
         location=event_data.location,

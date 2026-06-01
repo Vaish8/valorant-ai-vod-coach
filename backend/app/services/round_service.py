@@ -17,8 +17,8 @@ def create_round(db: Session, match_id: int, round_data: RoundCreate) -> Round |
     round_obj = Round(
         match_id=match_id,
         round_number=round_data.round_number,
-        side=round_data.side,
-        round_result=round_data.round_result,
+        side=round_data.side.value,
+        round_result=round_data.round_result.value,
         spike_planted=round_data.spike_planted,
         site=round_data.site,
         start_time_seconds=round_data.start_time_seconds,
