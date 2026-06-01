@@ -166,6 +166,13 @@ Future AI Coaching Feedback
 - Added `GET /matches/{match_id}/analysis` endpoint for retrieving saved analysis results
 - Improved the backend workflow from temporary API-only analysis to persistent analysis results for future dashboard and LLM coaching features
 
+### Day 10
+
+- Added sample match, round, event, statistics, and analysis JSON files for backend demo testing
+- Added demo workflow documentation explaining how to test the full Match → Round → Event → Statistics → Analysis pipeline
+- Improved project reproducibility by providing example API inputs and expected outputs
+- Documented the current manual-event workflow and future video-assisted analysis direction
+
 ## Tech Stack
 
 ### Backend

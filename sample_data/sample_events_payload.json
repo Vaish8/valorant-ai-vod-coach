@@ -1,0 +1,54 @@
+[
+  {
+    "round_number": 1,
+    "payload": {
+      "timestamp_seconds": 32,
+      "event_type": "first_death",
+      "actor": "self",
+      "target": null,
+      "location": "mid",
+      "description": "Player died first while peeking mid without trade support.",
+      "source": "manual",
+      "confidence": 1.0
+    }
+  },
+  {
+    "round_number": 2,
+    "payload": {
+      "timestamp_seconds": 30,
+      "event_type": "first_death",
+      "actor": "self",
+      "target": null,
+      "location": "A main",
+      "description": "Player died first while entering A main.",
+      "source": "manual",
+      "confidence": 1.0
+    }
+  },
+  {
+    "round_number": 2,
+    "payload": {
+      "timestamp_seconds": 74,
+      "event_type": "utility_unused",
+      "actor": "self",
+      "target": null,
+      "location": "A site",
+      "description": "Player died after spike plant with dash and smoke still available.",
+      "source": "manual",
+      "confidence": 1.0
+    }
+  },
+  {
+    "round_number": 3,
+    "payload": {
+      "timestamp_seconds": 44,
+      "event_type": "trade_kill",
+      "actor": "teammate",
+      "target": "enemy",
+      "location": "B main",
+      "description": "Teammate traded the first contact quickly.",
+      "source": "manual",
+      "confidence": 1.0
+    }
+  }
+]

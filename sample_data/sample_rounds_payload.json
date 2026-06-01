@@ -1,0 +1,29 @@
+[
+  {
+    "round_number": 1,
+    "side": "attack",
+    "round_result": "lost",
+    "spike_planted": false,
+    "site": null,
+    "start_time_seconds": 0,
+    "end_time_seconds": 95
+  },
+  {
+    "round_number": 2,
+    "side": "attack",
+    "round_result": "lost",
+    "spike_planted": true,
+    "site": "A",
+    "start_time_seconds": 96,
+    "end_time_seconds": 190
+  },
+  {
+    "round_number": 3,
+    "side": "defense",
+    "round_result": "won",
+    "spike_planted": false,
+    "site": null,
+    "start_time_seconds": 191,
+    "end_time_seconds": 280
+  }
+]

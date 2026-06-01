@@ -1,0 +1,24 @@
+{
+  "match_id": 1,
+  "total_rounds": 3,
+  "rounds_won": 1,
+  "rounds_lost": 2,
+  "attack_rounds": 2,
+  "defense_rounds": 1,
+  "attack_rounds_won": 0,
+  "defense_rounds_won": 1,
+  "attack_win_rate": 0.0,
+  "defense_win_rate": 1.0,
+  "overall_win_rate": 0.33,
+  "spike_plants": 1,
+  "post_plant_losses": 1,
+  "total_events": 4,
+  "event_counts_by_type": {
+    "first_death": 2,
+    "utility_unused": 1,
+    "trade_kill": 1
+  },
+  "first_death_count": 2,
+  "utility_unused_count": 1,
+  "trade_kill_count": 1
+}
