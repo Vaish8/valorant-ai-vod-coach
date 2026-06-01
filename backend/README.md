@@ -4,22 +4,23 @@ FastAPI backend for the Valorant AI VOD Coach project.
 
 ## Current Features
 
-- FastAPI application setup
-- Health check endpoint
-- Database health check endpoint
-- Environment-based configuration
-- CORS middleware for frontend integration
-- PostgreSQL database connection using SQLAlchemy
-- Redis service available through Docker Compose
-- Match session API for creating and retrieving Valorant VOD review sessions
-- Round API for storing round-level match data
-- Event API for storing structured gameplay events
-- Match statistics API for calculating gameplay metrics
-- Rule-based tactical analysis API for generating explainable findings
-- Persisted analysis results stored in PostgreSQL
-- Enum-based validation for structured gameplay data
-- Automated API documentation via Swagger UI
-- Automated backend tests using `pytest` and FastAPI `TestClient`
+* FastAPI application setup
+* Health check endpoint
+* Database health check endpoint
+* Environment-based configuration
+* CORS middleware for frontend integration
+* PostgreSQL database connection using SQLAlchemy
+* Redis service available through Docker Compose
+* Alembic database migrations for version-controlled schema management
+* Match session API for creating and retrieving Valorant VOD review sessions
+* Round API for storing round-level match data
+* Event API for storing structured gameplay events
+* Match statistics API for calculating gameplay metrics
+* Rule-based tactical analysis API for generating explainable findings
+* Persisted analysis results stored in PostgreSQL
+* Enum-based validation for structured gameplay data
+* Automated API documentation via Swagger UI
+* Automated backend tests using `pytest` and FastAPI `TestClient`
 
 ## Demo Data
 
@@ -27,11 +28,11 @@ Sample request and response payloads are available in the root `sample_data/` di
 
 Current sample files include:
 
-- `sample_match_payload.json`
-- `sample_rounds_payload.json`
-- `sample_events_payload.json`
-- `sample_statistics_response.json`
-- `sample_analysis_response.json`
+* `sample_match_payload.json`
+* `sample_rounds_payload.json`
+* `sample_events_payload.json`
+* `sample_statistics_response.json`
+* `sample_analysis_response.json`
 
 A complete demo workflow is documented in:
 
@@ -41,17 +42,19 @@ docs/demo-workflow.md
 
 ## Tech Stack
 
-- FastAPI
-- Python
-- SQLAlchemy
-- PostgreSQL
-- Redis
-- Docker Compose
-- Pydantic
-- Uvicorn
-- psycopg
-- pytest
-- httpx
+* FastAPI
+* Python
+* SQLAlchemy
+* PostgreSQL
+* Redis
+* Docker Compose
+* Pydantic
+* Uvicorn
+* psycopg
+* Alembic
+* pytest
+* httpx
+* GitHub Actions
 
 ## Run Locally
 
@@ -71,6 +74,18 @@ Install dependencies:
 
 ```bash
 pip install -r requirements.txt
+```
+
+Start PostgreSQL and Redis from the project root:
+
+```bash
+docker compose up -d db redis
+```
+
+Apply database migrations from the `backend/` folder:
+
+```bash
+alembic upgrade head
 ```
 
 Run the backend server:
@@ -117,6 +132,37 @@ Expected response:
   "database": "connected"
 }
 ```
+
+## Database Migrations
+
+This backend uses Alembic for version-controlled PostgreSQL schema migrations.
+
+Create a new migration after changing SQLAlchemy models:
+
+```bash
+alembic revision --autogenerate -m "describe schema change"
+```
+
+Apply migrations:
+
+```bash
+alembic upgrade head
+```
+
+Check the current migration version:
+
+```bash
+alembic current
+```
+
+The initial migration creates the core backend tables:
+
+* `matches`
+* `rounds`
+* `events`
+* `analysis_findings`
+
+During early development and testing, the backend still includes an `init_db()` helper for creating tables automatically. Production-style schema changes should be managed through Alembic migrations instead of relying on `Base.metadata.create_all()`.
 
 ## Match Session API
 
@@ -348,17 +394,17 @@ Example response:
 
 ### Statistics Currently Calculated
 
-- Total rounds
-- Rounds won and lost
-- Attack and defense round counts
-- Attack, defense, and overall win rates
-- Spike plants
-- Post-plant losses
-- Total gameplay events
-- Event counts by type
-- First death count
-- Utility unused count
-- Trade kill count
+* Total rounds
+* Rounds won and lost
+* Attack and defense round counts
+* Attack, defense, and overall win rates
+* Spike plants
+* Post-plant losses
+* Total gameplay events
+* Event counts by type
+* First death count
+* Utility unused count
+* Trade kill count
 
 ## Rule-Based Analysis API
 
@@ -398,11 +444,11 @@ Example response:
 
 ### Rules Currently Implemented
 
-- Repeated first deaths
-- Post-plant conversion issues
-- Utility unused in lost rounds
-- Low trade support
-- Low round conversion
+* Repeated first deaths
+* Post-plant conversion issues
+* Utility unused in lost rounds
+* Low trade support
+* Low round conversion
 
 ### Why This Layer Exists
 
@@ -460,12 +506,12 @@ The backend validates structured gameplay data before saving it to PostgreSQL.
 
 Current validation includes:
 
-- Round side must be `attack` or `defense`
-- Round result must be `won` or `lost`
-- Event type must be one of the supported tactical event types
-- Confidence must be between `0.0` and `1.0`
-- Round number must be between `1` and `30`
-- Round end time cannot be earlier than round start time
+* Round side must be `attack` or `defense`
+* Round result must be `won` or `lost`
+* Event type must be one of the supported tactical event types
+* Confidence must be between `0.0` and `1.0`
+* Round number must be between `1` and `30`
+* Round end time cannot be earlier than round start time
 
 Invalid values return a `422 Unprocessable Entity` response.
 
@@ -481,27 +527,28 @@ pytest
 
 Current tests cover:
 
-- Root endpoint
-- Health endpoint
-- Match creation
-- Round creation
-- Event creation
-- Statistics calculation
-- Rule-based analysis generation
-- Saved analysis retrieval
-- 404 handling for missing matches
-- Validation tests for invalid round sides and event types
+* Root endpoint
+* Health endpoint
+* Match creation
+* Round creation
+* Event creation
+* Statistics calculation
+* Rule-based analysis generation
+* Saved analysis retrieval
+* 404 handling for missing matches
+* Validation tests for invalid round sides and event types
 
 ## Development Notes
 
-The current MVP uses SQLAlchemy `create_all()` during development to create database tables automatically. This will later be replaced with Alembic migrations for production-grade schema management.
+The current MVP still includes a development/test `init_db()` helper for creating tables automatically in local and test environments. Production-style schema changes should be managed through Alembic migrations.
 
 The current event input is manual/structured. This is intentional for the MVP because it creates reliable data for the future rule-based tactical analysis engine before adding video-processing automation.
 
 ## Database Stack
 
-- PostgreSQL
-- SQLAlchemy
-- psycopg
-- Redis
-- Docker Compose
+* PostgreSQL
+* SQLAlchemy
+* psycopg
+* Redis
+* Docker Compose
+* Alembic
