@@ -181,6 +181,15 @@ Future AI Coaching Feedback
 - Added 404 tests for missing match statistics, analysis, and saved findings
 - Improved backend reliability by reducing reliance on manual Swagger testing
 
+### Day 12
+
+- Added enum-based validation for round sides, round results, and gameplay event types
+- Added timestamp validation to prevent invalid round time ranges
+- Updated services to store validated enum values consistently in PostgreSQL
+- Migrated settings configuration to Pydantic v2 `SettingsConfigDict`
+- Added validation tests for invalid round sides and event types
+- Improved API reliability by preventing invalid tactical data from entering the analysis pipeline
+
 ## Tech Stack
 
 ### Backend

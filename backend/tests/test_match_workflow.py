@@ -208,3 +208,80 @@ def test_missing_saved_analysis_returns_404():
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Match with id 999999 not found"
+
+def test_invalid_round_side_returns_422():
+    match_response = client.post(
+        "/matches",
+        json={
+            "title": "Invalid Round Side Test",
+            "map_name": "Ascent",
+            "player_agent": "Jett",
+            "rank": "Gold 2",
+        },
+    )
+
+    assert match_response.status_code == 201
+
+    match_id = match_response.json()["id"]
+
+    response = client.post(
+        f"/matches/{match_id}/rounds",
+        json={
+            "round_number": 1,
+            "side": "invalid_side",
+            "round_result": "lost",
+            "spike_planted": False,
+            "site": None,
+            "start_time_seconds": 0,
+            "end_time_seconds": 95,
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_invalid_event_type_returns_422():
+    match_response = client.post(
+        "/matches",
+        json={
+            "title": "Invalid Event Type Test",
+            "map_name": "Ascent",
+            "player_agent": "Jett",
+            "rank": "Gold 2",
+        },
+    )
+
+    assert match_response.status_code == 201
+    match_id = match_response.json()["id"]
+
+    round_response = client.post(
+        f"/matches/{match_id}/rounds",
+        json={
+            "round_number": 1,
+            "side": "attack",
+            "round_result": "lost",
+            "spike_planted": False,
+            "site": None,
+            "start_time_seconds": 0,
+            "end_time_seconds": 95,
+        },
+    )
+
+    assert round_response.status_code == 201
+    round_id = round_response.json()["id"]
+
+    response = client.post(
+        f"/rounds/{round_id}/events",
+        json={
+            "timestamp_seconds": 32,
+            "event_type": "random_event",
+            "actor": "self",
+            "target": None,
+            "location": "mid",
+            "description": "Invalid event type test.",
+            "source": "manual",
+            "confidence": 1.0,
+        },
+    )
+
+    assert response.status_code == 422
