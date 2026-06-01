@@ -14,7 +14,12 @@ FastAPI backend for the Valorant AI VOD Coach project.
 - Match session API for creating and retrieving Valorant VOD review sessions
 - Round API for storing round-level match data
 - Event API for storing structured gameplay events
-- Automatic API documentation via Swagger UI
+- Match statistics API for calculating gameplay metrics
+- Rule-based tactical analysis API for generating explainable findings
+- Persisted analysis results stored in PostgreSQL
+- Enum-based validation for structured gameplay data
+- Automated API documentation via Swagger UI
+- Automated backend tests using `pytest` and FastAPI `TestClient`
 
 ## Demo Data
 
@@ -32,6 +37,7 @@ A complete demo workflow is documented in:
 
 ```text
 docs/demo-workflow.md
+```
 
 ## Tech Stack
 
@@ -44,6 +50,8 @@ docs/demo-workflow.md
 - Pydantic
 - Uvicorn
 - psycopg
+- pytest
+- httpx
 
 ## Run Locally
 
@@ -173,7 +181,7 @@ If a match does not exist:
 
 ## Round and Event API
 
-The Round and Event APIs store structured gameplay data for each match session. These records will later power rule-based tactical analysis and AI coaching feedback.
+The Round and Event APIs store structured gameplay data for each match session. These records power statistics, rule-based tactical analysis, and future AI coaching feedback.
 
 Current relationship:
 
@@ -299,23 +307,9 @@ If a round exists but has no events, the API returns an empty list:
 []
 ```
 
-## Development Notes
-
-The current MVP uses SQLAlchemy `create_all()` during development to create database tables automatically. This will later be replaced with Alembic migrations for production-grade schema management.
-
-The current event input is manual/structured. This is intentional for the MVP because it creates reliable data for the future rule-based tactical analysis engine before adding video-processing automation.
-
-## Database Stack
-
-- PostgreSQL
-- SQLAlchemy
-- psycopg
-- Redis
-- Docker Compose
-
 ## Match Statistics API
 
-The Statistics API calculates match-level metrics from stored rounds and events. These statistics will be used by the future tactical rule engine.
+The Statistics API calculates match-level metrics from stored rounds and events. These statistics are used by the tactical rule engine.
 
 ### Get Match Statistics
 
@@ -376,6 +370,8 @@ The Rule-Based Analysis API converts stored rounds, events, and match statistics
 POST /matches/{match_id}/analyze
 ```
 
+This endpoint generates rule-based findings and saves them to the `analysis_findings` table.
+
 Example response:
 
 ```json
@@ -384,13 +380,17 @@ Example response:
   "total_findings": 6,
   "findings": [
     {
+      "id": 1,
+      "match_id": 1,
+      "round_id": null,
       "issue_type": "repeated_first_deaths",
       "severity": "high",
       "finding": "Player or team recorded 3 first-death events.",
       "evidence": "The match contains 3 first_death events. Repeated first deaths often create early 4v5 disadvantages.",
       "recommendation": "Avoid taking isolated early duels. Use teammate utility, request trade support, or delay first contact until the team is ready to follow up.",
       "confidence": 0.9,
-      "round_id": null
+      "source": "rule_engine",
+      "created_at": "2026-05-31T11:51:02.378773Z"
     }
   ]
 }
@@ -410,7 +410,7 @@ The rule engine creates evidence-based findings before the LLM layer is added. T
 
 ## Persisted Analysis Results API
 
-The backend stores rule-based tactical findings in PostgreSQL so that analysis results can be retrieved later by the dashboard or future LLM coaching layer.
+The backend stores rule-based tactical findings in PostgreSQL so analysis results can be retrieved later by the dashboard or future LLM coaching layer.
 
 ### Run and Save Match Analysis
 
@@ -450,6 +450,25 @@ Example response:
 }
 ```
 
+### Why This Matters
+
+Persisting analysis results allows the product to support dashboards, historical review, repeated analysis runs, and future LLM-generated summaries grounded in stored evidence.
+
+## Validation Rules
+
+The backend validates structured gameplay data before saving it to PostgreSQL.
+
+Current validation includes:
+
+- Round side must be `attack` or `defense`
+- Round result must be `won` or `lost`
+- Event type must be one of the supported tactical event types
+- Confidence must be between `0.0` and `1.0`
+- Round number must be between `1` and `30`
+- Round end time cannot be earlier than round start time
+
+Invalid values return a `422 Unprocessable Entity` response.
+
 ## Testing
 
 The backend uses `pytest` and FastAPI `TestClient` for automated API testing.
@@ -458,8 +477,31 @@ Run tests from the `backend/` folder:
 
 ```bash
 pytest
+```
 
-### Why This Matters
+Current tests cover:
 
-Persisting analysis results allows the product to support dashboards, historical review, repeated analysis runs, and future LLM-generated summaries grounded in stored evidence.
+- Root endpoint
+- Health endpoint
+- Match creation
+- Round creation
+- Event creation
+- Statistics calculation
+- Rule-based analysis generation
+- Saved analysis retrieval
+- 404 handling for missing matches
+- Validation tests for invalid round sides and event types
 
+## Development Notes
+
+The current MVP uses SQLAlchemy `create_all()` during development to create database tables automatically. This will later be replaced with Alembic migrations for production-grade schema management.
+
+The current event input is manual/structured. This is intentional for the MVP because it creates reliable data for the future rule-based tactical analysis engine before adding video-processing automation.
+
+## Database Stack
+
+- PostgreSQL
+- SQLAlchemy
+- psycopg
+- Redis
+- Docker Compose
