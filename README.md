@@ -1,5 +1,7 @@
 # Valorant AI VOD Coach
 
+![Backend CI](https://github.com/Vaish8/valorant-ai-vod-coach/actions/workflows/backend-ci.yml/badge.svg)
+
 ## Project Overview
 
 Valorant AI VOD Coach is a production-oriented AI/ML software project that analyzes Valorant gameplay videos and match data to generate round-by-round coaching feedback.
