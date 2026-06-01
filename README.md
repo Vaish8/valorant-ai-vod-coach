@@ -173,6 +173,14 @@ Future AI Coaching Feedback
 - Improved project reproducibility by providing example API inputs and expected outputs
 - Documented the current manual-event workflow and future video-assisted analysis direction
 
+### Day 11
+
+- Added automated backend tests using `pytest` and FastAPI `TestClient`
+- Tested health endpoints and full Match → Round → Event → Statistics → Analysis workflow
+- Verified statistics calculation, rule-based analysis generation, and saved analysis retrieval
+- Added 404 tests for missing match statistics, analysis, and saved findings
+- Improved backend reliability by reducing reliance on manual Swagger testing
+
 ## Tech Stack
 
 ### Backend
@@ -199,22 +207,6 @@ Future AI Coaching Feedback
 - Video metadata extraction
 - Future OpenCV-based event extraction
 
-## Current Status
-
-The project currently has a working backend foundation with:
-
-- API health check
-- Database health check
-- PostgreSQL connection
-- Match session creation and retrieval
-- Round creation and retrieval
-- Gameplay event creation and retrieval
-
-Next planned milestone:
-
-```text
-Build the rule-based tactical analysis engine using structured match, round, and event data.
-```
 
 ## Notes
 

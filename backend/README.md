@@ -16,6 +16,23 @@ FastAPI backend for the Valorant AI VOD Coach project.
 - Event API for storing structured gameplay events
 - Automatic API documentation via Swagger UI
 
+## Demo Data
+
+Sample request and response payloads are available in the root `sample_data/` directory.
+
+Current sample files include:
+
+- `sample_match_payload.json`
+- `sample_rounds_payload.json`
+- `sample_events_payload.json`
+- `sample_statistics_response.json`
+- `sample_analysis_response.json`
+
+A complete demo workflow is documented in:
+
+```text
+docs/demo-workflow.md
+
 ## Tech Stack
 
 - FastAPI
@@ -433,6 +450,16 @@ Example response:
 }
 ```
 
+## Testing
+
+The backend uses `pytest` and FastAPI `TestClient` for automated API testing.
+
+Run tests from the `backend/` folder:
+
+```bash
+pytest
+
 ### Why This Matters
 
 Persisting analysis results allows the product to support dashboards, historical review, repeated analysis runs, and future LLM-generated summaries grounded in stored evidence.
+
