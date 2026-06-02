@@ -44,7 +44,7 @@ sample_data/videos/
 *.mkv
 
 # Model artifacts
-models/
+/models/
 checkpoints/
 *.pt
 *.pth
