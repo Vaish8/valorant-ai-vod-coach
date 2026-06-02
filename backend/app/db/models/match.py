@@ -45,3 +45,10 @@ class Match(Base):
         back_populates="match",
         cascade="all, delete-orphan",
     )
+
+    coach_summary = relationship(
+        "CoachSummary",
+        back_populates="match",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
