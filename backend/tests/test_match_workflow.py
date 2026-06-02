@@ -215,6 +215,23 @@ def test_full_match_round_event_statistics_analysis_workflow():
     assert saved_coach_summary["match_id"] == match_id
     assert saved_coach_summary["id"] == coach_summary["id"]
 
+    # 14. Generate evidence-grounded coaching prompt
+    coach_prompt_response = client.get(
+        f"/matches/{match_id}/coach-prompt"
+    )
+
+    assert coach_prompt_response.status_code == 200
+
+    coach_prompt = coach_prompt_response.json()
+
+    assert coach_prompt["match_id"] == match_id
+    assert coach_prompt["prompt_type"] == "evidence_grounded_coaching_prompt"
+    assert "MATCH CONTEXT" in coach_prompt["prompt"]
+    assert "MATCH STATISTICS" in coach_prompt["prompt"]
+    assert "TACTICAL FINDINGS" in coach_prompt["prompt"]
+    assert "OUTPUT REQUIREMENTS" in coach_prompt["prompt"]
+    assert "Do not invent facts" in coach_prompt["prompt"]
+
 def test_missing_match_statistics_returns_404():
     response = client.get("/matches/999999/statistics")
 
@@ -311,7 +328,7 @@ def test_invalid_event_type_returns_422():
     )
 
     assert response.status_code == 422
-    
+
 def test_missing_coach_summary_returns_404():
     response = client.get("/matches/999999/coach-summary")
 
@@ -320,3 +337,9 @@ def test_missing_coach_summary_returns_404():
         response.json()["detail"]
         == "Coach summary for match with id 999999 not found"
     )
+
+def test_missing_coach_prompt_returns_404():
+    response = client.get("/matches/999999/coach-prompt")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Match with id 999999 not found"

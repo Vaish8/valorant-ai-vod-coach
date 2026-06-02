@@ -21,6 +21,7 @@ FastAPI backend for the Valorant AI VOD Coach project.
 * Enum-based validation for structured gameplay data
 * Automated API documentation via Swagger UI
 * Automated backend tests using `pytest` and FastAPI `TestClient`
+* Coach summary API for generating match-level coaching output from saved findings
 
 ## Demo Data
 
@@ -458,6 +459,81 @@ The rule engine creates evidence-based findings before the LLM layer is added. T
 
 The backend stores rule-based tactical findings in PostgreSQL so analysis results can be retrieved later by the dashboard or future LLM coaching layer.
 
+## Coach Summary API
+
+The Coach Summary API creates a match-level coaching explanation from saved statistics and persisted tactical findings.
+
+The current implementation uses a deterministic mock coach. This prepares the backend structure for future LLM-generated coaching summaries while keeping the current system testable without external API calls.
+
+## Coach Prompt API
+
+The Coach Prompt API builds an evidence-grounded prompt from match metadata, statistics, and persisted tactical findings.
+
+This endpoint does not call an LLM directly. It prepares the structured prompt that a future LLM client will use to generate coaching summaries.
+
+### Get Coach Prompt
+
+```http
+GET /matches/{match_id}/coach-prompt
+```
+
+Example response:
+
+```json
+{
+  "match_id": 1,
+  "prompt_type": "evidence_grounded_coaching_prompt",
+  "prompt": "You are an expert Valorant coach and esports analyst..."
+}
+```
+
+The prompt includes:
+
+- Match context
+- Match statistics
+- Tactical findings
+- Output requirements
+- Anti-hallucination instructions
+- Confidence and limitation instructions
+
+### Why This Layer Exists
+
+The prompt builder separates evidence preparation from LLM execution. This keeps the future LLM layer grounded, testable, and easier to debug.
+
+### Generate and Save Coach Summary
+
+```http
+POST /matches/{match_id}/coach-summary
+```
+
+This endpoint uses saved analysis findings and match statistics to generate a coaching summary and save it to PostgreSQL.
+
+### Get Saved Coach Summary
+
+```http
+GET /matches/{match_id}/coach-summary
+```
+
+Example response:
+
+```json
+{
+  "id": 1,
+  "match_id": 1,
+  "overall_summary": "This match contains 4 tactical findings across 3 tracked rounds. The overall round win rate was 0.33...",
+  "primary_issue": "post_plant_conversion_issue",
+  "key_evidence": "Round 2 has spike_planted=true and round_result=lost.",
+  "practice_recommendation": "Review post-plant positioning, crossfire setup, utility usage, and whether players over-peeked instead of playing time.",
+  "source": "mock_coach",
+  "created_at": "2026-06-01T...",
+  "updated_at": "2026-06-01T..."
+}
+```
+
+### Why This Layer Exists
+
+This layer converts structured statistics and rule-based findings into a human-readable coaching summary. The current mock coach keeps the system deterministic and testable. A future LLM layer can replace the mock generator while still grounding output in saved evidence.
+
 ### Run and Save Match Analysis
 
 ```http
@@ -537,6 +613,7 @@ Current tests cover:
 * Saved analysis retrieval
 * 404 handling for missing matches
 * Validation tests for invalid round sides and event types
+* Coach summary generation and retrieval
 
 ## Development Notes
 
