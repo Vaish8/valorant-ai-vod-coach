@@ -188,6 +188,32 @@ def test_full_match_round_event_statistics_analysis_workflow():
     assert saved_analysis["match_id"] == match_id
     assert saved_analysis["total_findings"] == analysis["total_findings"]
 
+    coach_summary_response = client.post(
+        f"/matches/{match_id}/coach-summary"
+    )
+
+    assert coach_summary_response.status_code == 200
+
+    coach_summary = coach_summary_response.json()
+
+    assert coach_summary["match_id"] == match_id
+    assert coach_summary["source"] == "mock_coach"
+    assert coach_summary["overall_summary"]
+    assert coach_summary["primary_issue"]
+    assert coach_summary["key_evidence"]
+    assert coach_summary["practice_recommendation"]
+
+    # 13. Retrieve saved coach summary
+    saved_coach_summary_response = client.get(
+        f"/matches/{match_id}/coach-summary"
+    )
+
+    assert saved_coach_summary_response.status_code == 200
+
+    saved_coach_summary = saved_coach_summary_response.json()
+
+    assert saved_coach_summary["match_id"] == match_id
+    assert saved_coach_summary["id"] == coach_summary["id"]
 
 def test_missing_match_statistics_returns_404():
     response = client.get("/matches/999999/statistics")
@@ -285,3 +311,12 @@ def test_invalid_event_type_returns_422():
     )
 
     assert response.status_code == 422
+    
+def test_missing_coach_summary_returns_404():
+    response = client.get("/matches/999999/coach-summary")
+
+    assert response.status_code == 404
+    assert (
+        response.json()["detail"]
+        == "Coach summary for match with id 999999 not found"
+    )

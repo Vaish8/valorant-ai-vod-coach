@@ -217,6 +217,16 @@ Future AI Coaching Feedback
 * Documented migration commands for creating, applying, and checking database schema versions
 * Kept the development/test `init_db()` helper while documenting Alembic as the production-ready schema management approach
 
+### Day 15
+
+- Added `CoachSummary` database model for storing match-level coaching summaries
+- Added coach summary response schema, service layer, and API routes
+- Added `POST /matches/{match_id}/coach-summary` endpoint to generate and save mock coaching summaries
+- Added `GET /matches/{match_id}/coach-summary` endpoint to retrieve saved coaching summaries
+- Generated an Alembic migration for the `coach_summaries` table
+- Added tests for coach summary generation and retrieval
+- Created the backend foundation for future LLM-assisted coaching summaries grounded in saved statistics and tactical findings
+
 ## Tech Stack
 
 ### Backend
@@ -264,11 +274,12 @@ The project currently has a working backend foundation with:
 * Enum-based validation for structured round and event data
 * GitHub Actions CI for automated backend testing
 * Alembic database migrations for version-controlled schema management
+* Coach summary generation from saved statistics and tactical findings
 
 Next planned milestone:
 
 ```text
-Add the LLM-assisted coaching summary layer using stored statistics and persisted tactical findings.
+Replace mock coaching generation with a prompt-builder and optional LLM client.
 ```
 
 ## Notes
