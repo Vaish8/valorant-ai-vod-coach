@@ -232,6 +232,22 @@ def test_full_match_round_event_statistics_analysis_workflow():
     assert "OUTPUT REQUIREMENTS" in coach_prompt["prompt"]
     assert "Do not invent facts" in coach_prompt["prompt"]
 
+    # 15. Generate mock LLM coaching response
+    llm_coaching_response = client.post(
+        f"/matches/{match_id}/llm-coaching"
+    )
+
+    assert llm_coaching_response.status_code == 200
+
+    llm_coaching = llm_coaching_response.json()
+
+    assert llm_coaching["match_id"] == match_id
+    assert llm_coaching["provider"] == "mock"
+    assert llm_coaching["model"] == "mock-coach-v1"
+    assert llm_coaching["prompt_type"] == "evidence_grounded_coaching_prompt"
+    assert "Overall Match Summary" in llm_coaching["generated_text"]
+    assert "Confidence and Limitations" in llm_coaching["generated_text"]
+
 def test_missing_match_statistics_returns_404():
     response = client.get("/matches/999999/statistics")
 
@@ -340,6 +356,12 @@ def test_missing_coach_summary_returns_404():
 
 def test_missing_coach_prompt_returns_404():
     response = client.get("/matches/999999/coach-prompt")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Match with id 999999 not found"
+
+def test_missing_llm_coaching_returns_404():
+    response = client.post("/matches/999999/llm-coaching")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Match with id 999999 not found"
