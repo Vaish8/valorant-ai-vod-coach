@@ -4,9 +4,9 @@
 
 ## Project Overview
 
-Valorant AI VOD Coach is a production-oriented AI/ML software project that analyzes Valorant gameplay videos and match data to generate round-by-round coaching feedback.
+Valorant AI VOD Coach is a production-oriented AI/ML software project that analyzes Valorant gameplay data and structured match events to generate tactical coaching feedback.
 
-The goal is to help players identify individual mistakes, team-level tactical issues, poor decision-making patterns, and improvement opportunities using a combination of structured gameplay events, match statistics, backend engineering, rule-based analysis, and future AI reasoning.
+The goal is to help players identify individual mistakes, team-level tactical issues, poor decision-making patterns, and improvement opportunities using a combination of structured gameplay events, match statistics, backend engineering, rule-based analysis, and LLM-ready coaching workflows.
 
 This project is being built as a deployable AI product, not a tutorial clone or academic-only prototype.
 
@@ -40,19 +40,19 @@ The MVP focuses on a narrow but valuable version of the product.
 
 ### MVP Features
 
-* Upload a gameplay VOD or sample match data
 * Store match metadata and round information
 * Store structured gameplay events
 * Calculate match-level statistics from round and event data
 * Build rule-based tactical analysis over match events
 * Persist tactical findings in PostgreSQL
-* Generate future AI-assisted coaching feedback per round
-* Categorize mistakes into tactical, positioning, utility, economy, and team coordination issues
-* Display analysis results through a simple web interface
+* Generate match-level coaching summaries from saved findings
+* Build evidence-grounded prompts for future LLM coaching
+* Generate mock LLM coaching responses through a provider-agnostic client abstraction
+* Prepare the backend for future video upload, video processing, and frontend dashboard layers
 
-### Out of Scope for MVP
+### Out of Scope for Current MVP
 
-The following features are intentionally excluded from the first version:
+The following features are intentionally excluded from the current backend-first MVP:
 
 * Real-time gameplay coaching
 * Fully automated computer vision for every in-game event
@@ -60,15 +60,17 @@ The following features are intentionally excluded from the first version:
 * Agent-specific deep strategy engine
 * Team voice communication analysis
 * Ranked matchmaking integration
+* Production frontend dashboard
+* Full video-to-event extraction pipeline
 
-These may be considered for later versions after the core product workflow is working.
+These may be considered for later versions after the core backend and coaching workflow are stable.
 
 ## Planned Architecture
 
 The planned system architecture is:
 
 ```text
-Frontend
+Frontend 
    |
    v
 Backend API
@@ -106,126 +108,143 @@ Rule-Based Tactical Analysis
 Persisted Findings
    |
    v
-Future AI Coaching Feedback
+Coach Summary
+   |
+   v
+Evidence-Grounded Coach Prompt
+   |
+   v
+Mock LLM Coaching Response
 ```
 
-## Development Progress
+## Implementation Phases
 
-### Day 1
+### Phase 1: Backend Foundation
+
+Implemented the core backend foundation required for a production-style API service.
+
+Key work completed:
 
 * Initialized project repository structure
-* Added roadmap and documentation foundation
-
-### Day 2
-
 * Added FastAPI backend skeleton
-* Added health check endpoint
+* Added root and health check endpoints
 * Added environment-based configuration
-* Added automatic API documentation
-
-### Day 3
-
+* Added CORS middleware for frontend integration
+* Added automatic API documentation through Swagger UI
 * Added PostgreSQL and Redis services using Docker Compose
 * Configured SQLAlchemy database engine and session management
-* Added environment-based database configuration
 * Added database health check endpoint at `/db/health`
 
-### Day 4
+### Phase 2: Structured Gameplay Data Pipeline
 
-* Added Match database model for Valorant VOD review sessions
-* Added Pydantic schemas for match creation and response validation
-* Added Match service layer for database operations
-* Added Match API endpoints: `POST /matches`, `GET /matches`, and `GET /matches/{match_id}`
+Built the core data model for representing Valorant VOD review sessions using match, round, and gameplay event entities.
 
-### Day 5
+Key work completed:
 
-* Added Round and Event database models for structured VOD analysis
-* Added Pydantic schemas for round and event validation
-* Added service layer functions for creating and retrieving rounds/events
-* Added API endpoints: `POST /matches/{match_id}/rounds`, `GET /matches/{match_id}/rounds`, `POST /rounds/{round_id}/events`, and `GET /rounds/{round_id}/events`
-* Built the structured data foundation for future rule-based tactical analysis and AI coaching feedback
+* Added `Match` database model for Valorant VOD review sessions
+* Added match creation and retrieval APIs
+* Added `Round` and `Event` database models for structured VOD analysis
+* Added APIs for creating and retrieving rounds and events
+* Added service-layer functions for database operations
+* Added Pydantic schemas for request and response validation
+* Built the `Match → Round → Event` foundation for future tactical analysis
 
-### Day 6
+Current data relationship:
 
-* Added backend learning notes to document the system built from Day 1 to Day 5
-* Reviewed FastAPI request flow, SQLAlchemy models, Pydantic schemas, service layers, and database relationships
-* Documented common development errors and fixes, including virtual environment issues, missing route registration, database authentication, and SQLAlchemy relationship configuration
-* Created a study reference for explaining the Match → Round → Event backend workflow in interviews
+```text
+Match
+   |
+   v
+Round
+   |
+   v
+Event
+```
 
-### Day 7
+### Phase 3: Statistics and Rule-Based Tactical Analysis
 
-* Added match statistics service to calculate round, side, spike, and event-based metrics
-* Added statistics response schema for structured API output
+Added the first analysis layer by calculating match-level statistics and applying deterministic rules to generate explainable tactical findings.
+
+Key work completed:
+
+* Added match statistics service
 * Added `GET /matches/{match_id}/statistics` endpoint
-* Calculated event counts for tactical signals such as `first_death`, `utility_unused`, and `trade_kill`
-* Created the foundation for the upcoming rule-based tactical analysis engine
-
-### Day 8
-
-* Added rule-based tactical analysis engine for structured match data
-* Added analysis response schema with issue type, severity, evidence, recommendation, confidence, and optional round reference
+* Calculated round, side, spike, and event-based metrics
+* Calculated tactical signals such as `first_death`, `utility_unused`, and `trade_kill`
+* Added rule-based tactical analysis engine
 * Added `POST /matches/{match_id}/analyze` endpoint
 * Implemented rules for repeated first deaths, post-plant conversion issues, utility unused in lost rounds, low trade support, and low round conversion
-* Created the first explainable analysis layer before adding LLM-based coaching
-
-### Day 9
-
-* Added database persistence for tactical analysis findings
-* Added `AnalysisFinding` SQLAlchemy model for storing issue type, severity, evidence, recommendation, confidence, source, and optional round reference
-* Updated `POST /matches/{match_id}/analyze` to generate and save findings to PostgreSQL
+* Added database persistence for tactical findings
 * Added `GET /matches/{match_id}/analysis` endpoint for retrieving saved analysis results
-* Improved the backend workflow from temporary API-only analysis to persistent analysis results for future dashboard and LLM coaching features
 
-### Day 10
+Analysis flow:
 
-* Added sample match, round, event, statistics, and analysis JSON files for backend demo testing
-* Added demo workflow documentation explaining how to test the full Match → Round → Event → Statistics → Analysis pipeline
-* Improved project reproducibility by providing example API inputs and expected outputs
-* Documented the current manual-event workflow and future video-assisted analysis direction
+```text
+Rounds + Events
+      |
+      v
+Statistics
+      |
+      v
+Rule-Based Findings
+      |
+      v
+Persisted Analysis Results
+```
 
-### Day 11
+### Phase 4: Coaching Summary and LLM-Ready Architecture
 
-* Added automated backend tests using `pytest` and FastAPI `TestClient`
-* Tested health endpoints and full Match → Round → Event → Statistics → Analysis workflow
-* Verified statistics calculation, rule-based analysis generation, and saved analysis retrieval
-* Added 404 tests for missing match statistics, analysis, and saved findings
-* Improved backend reliability by reducing reliance on manual Swagger testing
+Added the first AI-product layer by converting saved statistics and tactical findings into coaching summaries, evidence-grounded prompts, and mock LLM coaching responses.
 
-### Day 12
+Key work completed:
+
+* Added `CoachSummary` database model for storing match-level coaching summaries
+* Added `POST /matches/{match_id}/coach-summary` endpoint
+* Added `GET /matches/{match_id}/coach-summary` endpoint
+* Added evidence-grounded coach prompt builder
+* Added `GET /matches/{match_id}/coach-prompt` endpoint
+* Added anti-hallucination instructions and structured output requirements for future LLM coaching
+* Added provider-agnostic LLM client abstraction
+* Added mock LLM client for deterministic local and CI-safe testing
+* Added `POST /matches/{match_id}/llm-coaching` endpoint
+* Added environment-based LLM configuration using `LLM_PROVIDER`, `LLM_MODEL`, and `OPENAI_API_KEY`
+
+LLM-ready flow:
+
+```text
+Match Metadata
++ Statistics
++ Saved Tactical Findings
+        |
+        v
+Coach Prompt
+        |
+        v
+LLM Client
+        |
+        v
+Coaching Response
+```
+
+### Phase 5: Backend Quality and Production Readiness
+
+Improved backend reliability, maintainability, testing, and production readiness.
+
+Key work completed:
 
 * Added enum-based validation for round sides, round results, and gameplay event types
 * Added timestamp validation to prevent invalid round time ranges
-* Updated services to store validated enum values consistently in PostgreSQL
 * Migrated settings configuration to Pydantic v2 `SettingsConfigDict`
+* Added automated backend tests using `pytest` and FastAPI `TestClient`
+* Tested the full Match → Round → Event → Statistics → Analysis → Coaching workflow
 * Added validation tests for invalid round sides and event types
-* Improved API reliability by preventing invalid tactical data from entering the analysis pipeline
-
-### Day 13
-
 * Added GitHub Actions workflow for automated backend testing
 * Configured CI to run on pushes and pull requests to `main`
 * Added PostgreSQL and Redis service containers for CI test execution
-* Configured backend dependency installation and `pytest` execution in GitHub Actions
-* Added backend CI badge to the project README after successful workflow execution
-
-### Day 14
-
 * Added Alembic for version-controlled PostgreSQL database migrations
-* Configured Alembic to use SQLAlchemy model metadata for automatic migration generation
-* Generated the initial database schema migration for `matches`, `rounds`, `events`, and `analysis_findings`
-* Applied the initial migration to PostgreSQL using `alembic upgrade head`
-* Documented migration commands for creating, applying, and checking database schema versions
-* Kept the development/test `init_db()` helper while documenting Alembic as the production-ready schema management approach
-
-### Day 15
-
-- Added `CoachSummary` database model for storing match-level coaching summaries
-- Added coach summary response schema, service layer, and API routes
-- Added `POST /matches/{match_id}/coach-summary` endpoint to generate and save mock coaching summaries
-- Added `GET /matches/{match_id}/coach-summary` endpoint to retrieve saved coaching summaries
-- Generated an Alembic migration for the `coach_summaries` table
-- Added tests for coach summary generation and retrieval
-- Created the backend foundation for future LLM-assisted coaching summaries grounded in saved statistics and tactical findings
+* Generated initial database schema migration for `matches`, `rounds`, `events`, and `analysis_findings`
+* Generated additional migration for `coach_summaries`
+* Documented migration commands for creating, applying, and checking schema versions
 
 ## Tech Stack
 
@@ -242,17 +261,18 @@ Future AI Coaching Feedback
 * Alembic
 * pytest
 * GitHub Actions
+* LLM client abstraction
 
 ### Planned Frontend
 
 * React or Next.js
 * Tailwind CSS
-* Dashboard UI for match, round, event, statistics, and analysis results
+* Dashboard UI for match, round, event, statistics, analysis, and coaching results
 
 ### Planned AI/ML Layer
 
 * Rule-based tactical analysis
-* LLM-assisted coaching summaries
+* Evidence-grounded LLM coaching summaries
 * Video metadata extraction
 * Future OpenCV-based event extraction
 
@@ -269,21 +289,100 @@ The project currently has a working backend foundation with:
 * Match statistics calculation from structured round and event data
 * Rule-based tactical analysis from structured match statistics and events
 * Persistent analysis findings stored in PostgreSQL
+* Coach summary generation from saved statistics and tactical findings
+* Evidence-grounded coach prompt generation for future LLM summaries
+* Mock LLM coaching generation through a provider-agnostic client abstraction
 * Sample demo workflow and JSON payloads for testing the backend analysis pipeline
-* Automated backend tests for the core analysis workflow
+* Automated backend tests for the core analysis and coaching workflow
 * Enum-based validation for structured round and event data
 * GitHub Actions CI for automated backend testing
 * Alembic database migrations for version-controlled schema management
-* Coach summary generation from saved statistics and tactical findings
 
-Next planned milestone:
+## API Capabilities
+
+Current backend endpoints support:
+
+* Match session creation and retrieval
+* Round creation and retrieval
+* Gameplay event creation and retrieval
+* Match statistics calculation
+* Rule-based tactical analysis generation
+* Saved analysis retrieval
+* Coach summary generation and retrieval
+* Evidence-grounded coach prompt generation
+* Mock LLM coaching response generation
+* Health and database health checks
+
+Swagger API docs are available locally at:
 
 ```text
-Replace mock coaching generation with a prompt-builder and optional LLM client.
+http://127.0.0.1:8000/docs
+```
+
+## Demo Data
+
+Sample request and response payloads are available in the root `sample_data/` directory.
+
+Current sample files include:
+
+* `sample_match_payload.json`
+* `sample_rounds_payload.json`
+* `sample_events_payload.json`
+* `sample_statistics_response.json`
+* `sample_analysis_response.json`
+
+A complete demo workflow is documented in:
+
+```text
+docs/demo-workflow.md
+```
+
+## Testing and CI
+
+The backend uses automated tests to validate the core workflow.
+
+Current tests cover:
+
+* Root endpoint
+* Health endpoint
+* Match creation
+* Round creation
+* Event creation
+* Statistics calculation
+* Rule-based analysis generation
+* Saved analysis retrieval
+* Validation failures for invalid gameplay inputs
+* Coach summary generation and retrieval
+* Coach prompt generation
+* Mock LLM coaching response generation
+
+GitHub Actions runs the backend test suite automatically on pushes and pull requests to `main`.
+
+## Current Limitations
+
+The current MVP uses manually entered structured events. This is intentional because it creates reliable evidence for statistics, rule-based analysis, prompt generation, and mock LLM coaching before attempting harder video-based event extraction.
+
+Current limitations:
+
+* No production frontend yet
+* No real video upload or video processing pipeline yet
+* No automated computer vision event extraction yet
+* LLM coaching currently uses a mock provider by default
+* No user authentication or multi-user workspace yet
+* No deployed production environment yet
+
+## Next Planned Milestone
+
+The next planned milestone is to add optional real LLM provider integration while keeping mock mode as the default for local development and CI.
+
+Planned next work:
+
+```text
+Add optional OpenAI client integration behind the existing LLM provider abstraction.
 ```
 
 ## Notes
 
-This project is under active development. The current focus is building a reliable backend and structured data pipeline before adding advanced video processing or AI coaching features.
+This project is under active development. The current focus is building a reliable backend and structured data pipeline before adding advanced video processing, frontend dashboard features, or production deployment.
 
-The current MVP uses manually entered structured events. This is intentional because it creates reliable evidence for statistics, rule-based analysis, and future LLM coaching before attempting harder video-based event extraction.
+The current backend deliberately separates statistics, rule-based analysis, prompt building, and LLM generation. This makes the system easier to test, easier to debug, and safer against hallucinated coaching output.

@@ -18,10 +18,12 @@ FastAPI backend for the Valorant AI VOD Coach project.
 * Match statistics API for calculating gameplay metrics
 * Rule-based tactical analysis API for generating explainable findings
 * Persisted analysis results stored in PostgreSQL
+* Coach summary API for generating match-level coaching output from saved findings
+* Coach prompt API for preparing evidence-grounded LLM coaching prompts
+* Mock LLM coaching API for generating evidence-grounded coaching text
 * Enum-based validation for structured gameplay data
 * Automated API documentation via Swagger UI
 * Automated backend tests using `pytest` and FastAPI `TestClient`
-* Coach summary API for generating match-level coaching output from saved findings
 
 ## Demo Data
 
@@ -56,6 +58,7 @@ docs/demo-workflow.md
 * pytest
 * httpx
 * GitHub Actions
+* LLM client abstraction
 
 ## Run Locally
 
@@ -162,6 +165,10 @@ The initial migration creates the core backend tables:
 * `rounds`
 * `events`
 * `analysis_findings`
+
+Additional migrations add later product tables such as:
+
+* `coach_summaries`
 
 During early development and testing, the backend still includes an `init_db()` helper for creating tables automatically. Production-style schema changes should be managed through Alembic migrations instead of relying on `Base.metadata.create_all()`.
 
@@ -459,81 +466,6 @@ The rule engine creates evidence-based findings before the LLM layer is added. T
 
 The backend stores rule-based tactical findings in PostgreSQL so analysis results can be retrieved later by the dashboard or future LLM coaching layer.
 
-## Coach Summary API
-
-The Coach Summary API creates a match-level coaching explanation from saved statistics and persisted tactical findings.
-
-The current implementation uses a deterministic mock coach. This prepares the backend structure for future LLM-generated coaching summaries while keeping the current system testable without external API calls.
-
-## Coach Prompt API
-
-The Coach Prompt API builds an evidence-grounded prompt from match metadata, statistics, and persisted tactical findings.
-
-This endpoint does not call an LLM directly. It prepares the structured prompt that a future LLM client will use to generate coaching summaries.
-
-### Get Coach Prompt
-
-```http
-GET /matches/{match_id}/coach-prompt
-```
-
-Example response:
-
-```json
-{
-  "match_id": 1,
-  "prompt_type": "evidence_grounded_coaching_prompt",
-  "prompt": "You are an expert Valorant coach and esports analyst..."
-}
-```
-
-The prompt includes:
-
-- Match context
-- Match statistics
-- Tactical findings
-- Output requirements
-- Anti-hallucination instructions
-- Confidence and limitation instructions
-
-### Why This Layer Exists
-
-The prompt builder separates evidence preparation from LLM execution. This keeps the future LLM layer grounded, testable, and easier to debug.
-
-### Generate and Save Coach Summary
-
-```http
-POST /matches/{match_id}/coach-summary
-```
-
-This endpoint uses saved analysis findings and match statistics to generate a coaching summary and save it to PostgreSQL.
-
-### Get Saved Coach Summary
-
-```http
-GET /matches/{match_id}/coach-summary
-```
-
-Example response:
-
-```json
-{
-  "id": 1,
-  "match_id": 1,
-  "overall_summary": "This match contains 4 tactical findings across 3 tracked rounds. The overall round win rate was 0.33...",
-  "primary_issue": "post_plant_conversion_issue",
-  "key_evidence": "Round 2 has spike_planted=true and round_result=lost.",
-  "practice_recommendation": "Review post-plant positioning, crossfire setup, utility usage, and whether players over-peeked instead of playing time.",
-  "source": "mock_coach",
-  "created_at": "2026-06-01T...",
-  "updated_at": "2026-06-01T..."
-}
-```
-
-### Why This Layer Exists
-
-This layer converts structured statistics and rule-based findings into a human-readable coaching summary. The current mock coach keeps the system deterministic and testable. A future LLM layer can replace the mock generator while still grounding output in saved evidence.
-
 ### Run and Save Match Analysis
 
 ```http
@@ -576,6 +508,109 @@ Example response:
 
 Persisting analysis results allows the product to support dashboards, historical review, repeated analysis runs, and future LLM-generated summaries grounded in stored evidence.
 
+## Coach Summary API
+
+The Coach Summary API creates a match-level coaching explanation from saved statistics and persisted tactical findings.
+
+The current implementation uses a deterministic mock coach. This prepares the backend structure for future LLM-generated coaching summaries while keeping the current system testable without external API calls.
+
+### Generate and Save Coach Summary
+
+```http
+POST /matches/{match_id}/coach-summary
+```
+
+This endpoint uses saved analysis findings and match statistics to generate a coaching summary and save it to PostgreSQL.
+
+### Get Saved Coach Summary
+
+```http
+GET /matches/{match_id}/coach-summary
+```
+
+Example response:
+
+```json
+{
+  "id": 1,
+  "match_id": 1,
+  "overall_summary": "This match contains 4 tactical findings across 3 tracked rounds. The overall round win rate was 0.33...",
+  "primary_issue": "post_plant_conversion_issue",
+  "key_evidence": "Round 2 has spike_planted=true and round_result=lost.",
+  "practice_recommendation": "Review post-plant positioning, crossfire setup, utility usage, and whether players over-peeked instead of playing time.",
+  "source": "mock_coach",
+  "created_at": "2026-06-01T...",
+  "updated_at": "2026-06-01T..."
+}
+```
+
+### Why This Layer Exists
+
+This layer converts structured statistics and rule-based findings into a human-readable coaching summary. The current mock coach keeps the system deterministic and testable. A future LLM layer can replace the mock generator while still grounding output in saved evidence.
+
+## Coach Prompt API
+
+The Coach Prompt API builds an evidence-grounded prompt from match metadata, statistics, and persisted tactical findings.
+
+This endpoint does not call an LLM directly. It prepares the structured prompt that a future LLM client will use to generate coaching summaries.
+
+### Get Coach Prompt
+
+```http
+GET /matches/{match_id}/coach-prompt
+```
+
+Example response:
+
+```json
+{
+  "match_id": 1,
+  "prompt_type": "evidence_grounded_coaching_prompt",
+  "prompt": "You are an expert Valorant coach and esports analyst..."
+}
+```
+
+The prompt includes:
+
+* Match context
+* Match statistics
+* Tactical findings
+* Output requirements
+* Anti-hallucination instructions
+* Confidence and limitation instructions
+
+### Why This Layer Exists
+
+The prompt builder separates evidence preparation from LLM execution. This keeps the future LLM layer grounded, testable, and easier to debug.
+
+## LLM Coaching API
+
+The LLM Coaching API generates a coaching response from the evidence-grounded prompt.
+
+The current implementation uses a mock LLM client. This keeps the backend deterministic, testable, and safe for CI while preparing the system for future real LLM integration.
+
+### Generate LLM Coaching Response
+
+```http
+POST /matches/{match_id}/llm-coaching
+```
+
+Example response:
+
+```json
+{
+  "match_id": 1,
+  "provider": "mock",
+  "model": "mock-coach-v1",
+  "prompt_type": "evidence_grounded_coaching_prompt",
+  "generated_text": "Overall Match Summary..."
+}
+```
+
+### Why This Layer Exists
+
+The LLM client abstraction separates the coaching workflow from any specific model provider. Today it uses `mock`, but future providers such as OpenAI can be added behind the same interface without changing the rest of the backend.
+
 ## Validation Rules
 
 The backend validates structured gameplay data before saving it to PostgreSQL.
@@ -614,12 +649,16 @@ Current tests cover:
 * 404 handling for missing matches
 * Validation tests for invalid round sides and event types
 * Coach summary generation and retrieval
+* Coach prompt generation
+* Mock LLM coaching response generation
 
 ## Development Notes
 
 The current MVP still includes a development/test `init_db()` helper for creating tables automatically in local and test environments. Production-style schema changes should be managed through Alembic migrations.
 
 The current event input is manual/structured. This is intentional for the MVP because it creates reliable data for the future rule-based tactical analysis engine before adding video-processing automation.
+
+The current LLM coaching implementation uses a mock provider by default. This keeps the project deterministic, safe for CI, and usable without external API keys. Real LLM integration can be added later behind the existing provider abstraction.
 
 ## Database Stack
 
