@@ -4,11 +4,11 @@
 
 ## Project Overview
 
-Valorant AI VOD Coach is a production-oriented AI/ML software project that analyzes Valorant gameplay data and structured match events to generate tactical coaching feedback.
+Valorant AI VOD Coach is a backend-first AI coaching platform that supports structured event-based VOD review and match-statistics-based performance analysis.
 
-The goal is to help players identify individual mistakes, team-level tactical issues, poor decision-making patterns, and improvement opportunities using a combination of structured gameplay events, match statistics, backend engineering, rule-based analysis, and LLM-ready coaching workflows.
+The current MVP stores match, round, event, and coaching data, calculates tactical statistics, generates rule-based findings, builds evidence-grounded prompts, and produces mock or Gemini-powered coaching responses through a provider-agnostic LLM layer.
 
-This project is being built as a deployable AI product, not a tutorial clone or academic-only prototype.
+The next development phase expands the system with player-statistics benchmarking so the coach can compare a player's performance against agent-level or dataset-level benchmarks.
 
 ## Problem Statement
 
@@ -90,31 +90,23 @@ Database + File Storage
 The backend currently supports the following structured workflow:
 
 ```text
-Match Session
-   |
-   v
-Rounds
-   |
-   v
-Gameplay Events
-   |
-   v
-Statistics
-   |
-   v
-Rule-Based Tactical Analysis
-   |
-   v
-Persisted Findings
-   |
-   v
-Coach Summary
-   |
-   v
-Evidence-Grounded Coach Prompt
-   |
-   v
-Mock LLM Coaching Response
+                 Match
+                   |
+        -----------------------
+        |                     |
+        v                     v
+ Round/Event Data       Player Stat Data
+        |                     |
+        v                     v
+ Rule-Based Analysis    Benchmark Analysis
+        |                     |
+        -----------+-----------
+                    |
+                    v
+        Evidence-Grounded Coaching
+                    |
+                    v
+        Mock or Gemini LLM Response
 ```
 
 ## Implementation Phases
@@ -246,6 +238,19 @@ Key work completed:
 * Generated additional migration for `coach_summaries`
 * Documented migration commands for creating, applying, and checking schema versions
 
+### Upcoming Phase: Statistics Benchmarking and Comparative Analytics
+
+The next phase will add support for player-statistics-based analysis using aggregate Valorant performance data.
+
+Planned components:
+
+- Player statistics import from CSV
+- PostgreSQL table for benchmark player stats
+- Agent-level benchmark calculation
+- Player stat comparison service
+- Benchmark-aware coaching prompt
+- Gemini coaching response using both tactical findings and benchmark evidence
+
 ## Tech Stack
 
 ### Backend
@@ -373,13 +378,13 @@ Current limitations:
 
 ## Next Planned Milestone
 
-The next planned milestone is to add optional real LLM provider integration while keeping mock mode as the default for local development and CI.
+
+The next planned milestone is to add statistics-based benchmarking using player-level Valorant stats.
 
 Planned next work:
 
 ```text
-Add optional OpenAI client integration behind the existing LLM provider abstraction.
-```
+Import player statistics data, calculate agent-level benchmarks, compare user match stats against those benchmarks, and include benchmark evidence in coaching prompts.
 
 ## Notes
 

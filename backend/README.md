@@ -660,6 +660,23 @@ The current event input is manual/structured. This is intentional for the MVP be
 
 The current LLM coaching implementation uses a mock provider by default. This keeps the project deterministic, safe for CI, and usable without external API keys. Real LLM integration can be added later behind the existing provider abstraction.
 
+## Planned Benchmark Analysis Mode
+
+The current backend supports structured event-based analysis through match, round, and event records.
+
+A planned benchmark analysis mode will support aggregate player statistics, allowing the system to compare a player's match performance against agent-level or dataset-level benchmarks.
+
+This will allow the coaching layer to use evidence such as:
+
+- ACS compared to benchmark
+- ADR compared to benchmark
+- K/D compared to benchmark
+- KAST% compared to benchmark
+- FKPR and FDPR compared to benchmark
+- First death rate compared to benchmark
+
+This is useful when round-by-round event data is unavailable but player-level statistics are available.
+
 ## Database Stack
 
 * PostgreSQL
