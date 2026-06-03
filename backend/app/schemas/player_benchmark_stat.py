@@ -37,3 +37,19 @@ class BenchmarkImportResponse(BaseModel):
     imported_rows: int
     skipped_rows: int
     message: str
+
+class AgentBenchmarkResponse(BaseModel):
+    agent: str
+    sample_size: int
+
+    average_rating: float | None
+    average_acs: float | None
+    average_kd_ratio: float | None
+    average_kast_percent: float | None
+    average_adr: float | None
+    average_kpr: float | None
+    average_apr: float | None
+    average_fkpr: float | None
+    average_fdpr: float | None
+    average_hs_percent: float | None
+    average_clutch_success_percent: float | None
