@@ -13,6 +13,8 @@ from app.api.routes.analysis import router as analysis_router
 from app.api.routes.coach_summary import router as coach_summary_router
 from app.api.routes.coach_prompt import router as coach_prompt_router
 from app.api.routes.llm_coaching import router as llm_coaching_router
+from app.api.routes.benchmarks import router as benchmarks_router
+
 from app.core.config import settings
 from app.db.init_db import init_db
 
@@ -52,6 +54,7 @@ app.include_router(analysis_router)
 app.include_router(coach_summary_router)
 app.include_router(coach_prompt_router)
 app.include_router(llm_coaching_router)
+app.include_router(benchmarks_router)
 
 @app.get("/", tags=["Root"])
 def root():
