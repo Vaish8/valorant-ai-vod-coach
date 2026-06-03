@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.llm.factory import get_llm_client
 from app.services.coach_prompt_builder import build_coach_prompt
 
@@ -19,8 +20,8 @@ def generate_llm_coaching_text(
 
     return {
         "match_id": match_id,
-        "provider": "mock",
-        "model": "mock-coach-v1",
+        "provider": settings.LLM_PROVIDER,
+        "model": settings.LLM_MODEL,
         "prompt_type": prompt_response["prompt_type"],
         "generated_text": generated_text,
     }

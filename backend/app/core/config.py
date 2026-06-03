@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     LLM_PROVIDER: str = "mock"
     LLM_MODEL: str = "mock-coach-v1"
-    OPENAI_API_KEY: str | None = None
+    GEMINI_API_KEY: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",
